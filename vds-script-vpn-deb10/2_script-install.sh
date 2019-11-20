@@ -1,11 +1,11 @@
 #!/bin/bash
 SECONDS=0
 printf "\033c"
-echo "Устанавливаем необходимое ПО..."
+echo "Install requirements packets..."
 apt-get update
-apt-get install openvpn asterisk mc ntp fail2ban nftables -y
+apt-get install openvpn asterisk mc ntp chrony fail2ban nftables -y
 apt-get autoclean && apt-get clean
-/etc/init.d/ntp stop && sntp pool.ntp.org && /etc/init.d/ntp start
+systemctl enable chrony
 # Изменяем временную зону
 ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 # Готовимся к генерации сертификатов
