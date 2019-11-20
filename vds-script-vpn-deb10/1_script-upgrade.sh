@@ -40,7 +40,7 @@ fi
 reb=`cat /var/log/apt/term.log | grep Please | awk '{print $1, $2}'`
 if [[ $reb == "Please reboot" ]]
   then
-    echo -e "\e[31m### Хорошо бы ребутнуться по возможности ###\e[0m"
+    echo -e "\e[1;31m### Хорошо бы ребутнуться по возможности ###\e[0m"
 fi
 
 echo
