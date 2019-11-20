@@ -1,0 +1,17 @@
+#!/bin/bash
+EASYRSAPATH=/etc/openvpn/easy-rsa/
+echo "Введите срок действия сертификата в днях"
+echo "(например, 3650 - 10 лет, 365 - 1 год, 182 - полгода, 90 - 3 месяца, 30 - 1 месяц, 7 - 1 неделя и т.д.)"
+echo "Enter the \"validity\" "
+read validity
+sed -i '59s/3650/${validity}/' /etc/openvpn/easy-rsa/vars
+cd $EASYRSAPATH
+source vars
+(echo -en "\n\n\n\n\n\n\n\n"; sleep 1; echo -en "\n"; sleep 1; echo -en "\n"; sleep 3; echo -en "y"; echo -en "\n"; sleep 3; echo -en "y"; echo -en "\n") | ./build-key "$1"
+cd ./keys
+#Connect - образное название подключения.
+sed -e "s/user/$1/" -e "s/$/`echo \\\r`/" connect-t.openvpn > connect.ovpn
+tar -zcf "$1".tar.gz ca.crt ta.key connect.ovpn "$1".crt "$1".key
+#НУЖНО указать свой email. На него приедет архив с сертификатами.
+echo "OpenVPN keys for user: $1" | mutt -s "OpenVPN keys for user: $1" email@email -a $EASYRSAPATH/keys/"$1".tar.gz
+rm -f $EASYRSAPATH/keys/connect.ovpn
