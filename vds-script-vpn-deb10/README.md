@@ -53,11 +53,11 @@ script-delete - Удаление ПО и сертификатов.<br>
 
 Обновится файл sshd_config для подключения к vds по ssh с ключом. Скачаются скрипты установки ПО и генерации сертификатов с github.
 
-Запускаем скрипты по очереди.
+Запускаем скрипты по очереди.<br>
 `./1_script-upgrade.sh`<br>
 `./2_script-install.sh`<br>
 
-Если нужно настроить ntp на свой сервер синхронизации времени, то просто добавьте строку с адресом в файл /etc/chrony/chrony.conf в виде: server айпи iburst, а pool закомментируйте:
+Если нужно настроить ntp на свой сервер синхронизации времени, то просто добавьте строку с адресом в файл /etc/chrony/chrony.conf в виде: server айпи iburst, а pool закомментируйте:<br>
 `cp /etc/chrony/chrony.conf /etc/chrony/chrony.conf.bak` (делаем бэкап конфига)<br>
 `sed -i '3s/.*pool.*/server АЙПИ iburst/' /etc/chrony/chrony.conf` (заменяем пул на свой сервер)<br>
 `systemctl restart chrony` (перезапускаем службу)<br>
