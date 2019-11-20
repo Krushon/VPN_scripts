@@ -13,11 +13,11 @@
 Пользователь <-- OpenVPN-клиент <-- OpenVPN-сервер <-- Интернет<br>
 <br>
 Более определённый пример:<br>
-Виртуальная машина (клиент-банк, документооборт) с внутренним ip <--> Шлюз <--> VDS с внешним ip
+Виртуальная машина <--> Шлюз <--> VDS с внешним ip
 <br><br>
 Шлюз один. Виртуальных (или обычных) машин внутри сети может быть много. Для каждой машины нужен отдельный vds со своим внешним ip.
 <br><br>
-Все скрипты настроены на debian и доступом по root через ssh.<br>
+Все скрипты настроены на debian 10 и доступом по root через ssh с ключом.<br>
 <br>
 **Содержимое скриптов:**<br>
 0 - Подготовка vds-машины: загрузка скриптов, обновление ssh-конфига. Подразумевается наличие сгенерированного ssh-ключа authorized_keys (см. <a href="https://github.com/Krushon/vds-script-vpn/wiki">wiki</a>).<br>
@@ -31,6 +31,8 @@ script-delete - Удаление ПО и сертификатов.<br>
 `asterisk` - телефонная станция и набор инструментальных средств для телефонии<br>
 `mc` - MidnightCommander - полноэкранный текстовый файловый менеджер<br>
 `ntp` - Network Time Protocol - сетевая служба времени и вспомогательные программы<br>
+<s>`ntpdate` - клиент для установки системного времени и серверов NTP</s> (устарел)<br>
+`chrony` - клиент для установки системного времени и серверов NTP<br>
 `fail2ban` - отслеживает файлы журнала и временно или постоянно запрещает доступ нарушителям<br>
 `nftables` - Netfilter Tables - механизм для управления файрволом (замена iptables).<br>
 <br>
@@ -55,11 +57,16 @@ script-delete - Удаление ПО и сертификатов.<br>
 `./1_script-upgrade.sh`<br>
 `./2_script-install.sh`<br>
 
-Если нужно настроить ntp на свой сервер синхронизации времени, то просто добавьте строку с адресом в файл /etc/ntp.conf в виде: server айпи iburst, а все pool закомментируйте:
-`cp /etc/ntp.conf /etc/ntp.conf.bak`<br>
-`sed -i '18s/#server ntp.your-provider.example/server АЙПИ iburst/' /etc/ntp.conf`<br>
-`sed -i 's/.*debian.pool/# \0/' /etc/ntp.conf`<br>
-`systemctl restart ntp`<br>
+Если нужно настроить ntp на свой сервер синхронизации времени, то просто добавьте строку с адресом в файл /etc/chrony/chrony.conf в виде: server айпи iburst, а pool закомментируйте:
+`cp /etc/chrony/chrony.conf /etc/chrony/chrony.conf.bak` (делаем бэкап конфига)<br>
+`sed -i '3s/.*pool.*/server АЙПИ iburst/' /etc/chrony/chrony.conf` (заменяем пул на свой сервер)<br>
+`systemctl restart chrony` (перезапускаем службу)<br>
+`chronyc sourcestats` (проверяем статус)<br>
+
+<s>`cp /etc/ntp.conf /etc/ntp.conf.bak` (делаем бэкап конфига)<br>
+`sed -i '18s/#server ntp.your-provider.example/server АЙПИ iburst/' /etc/ntp.conf` (указываем свой сервер)<br>
+`sed -i 's/.*debian.pool/# \0/' /etc/ntp.conf` (комментируем все строки с пулами адресов)<br>
+`systemctl restart ntp` (перезапускаем службу)<br></s>
 
 `./3_script-cert.sh`<br>
 
