@@ -51,11 +51,16 @@ script-delete - Удаление ПО и сертификатов.<br>
 
 Обновится файл sshd_config для подключения к vds по ssh с ключом. Скачаются скрипты установки ПО и генерации сертификатов с github.
 
-3. Подлючаемся обратно и запускаем скрипты по очереди.
-
-`ssh root@айпи -i ключ.key`<br>
+Запускаем скрипты по очереди.
 `./1_script-upgrade.sh`<br>
 `./2_script-install.sh`<br>
+
+Если нужно настроить ntp на свой сервер синхронизации времени, то просто добавьте строку с адресом в файл /etc/ntp.conf в виде: server айпи iburst, а все pool закомментируйте:
+`cp /etc/ntp.conf /etc/ntp.conf.bak`<br>
+`sed -i '18s/#server ntp.your-provider.example/server АЙПИ iburst/' /etc/ntp.conf`<br>
+`sed -i 's/.*debian.pool/# \0/' /etc/ntp.conf`<br>
+`systemctl restart ntp`<br>
+
 `./3_script-cert.sh`<br>
 
 Вся система будет обновлена, установится ПО, сгенерируются сертификаты.<br>
