@@ -4,9 +4,9 @@ SECONDS=0
 printf "\033c"
 #Проверка подключения модулей ядра tun/tap
 if [ -c /dev/net/tun ]; then
-    echo "TUN/TAP включены."
+    echo "TUN включен."
 else
-    echo "TUN/TAP выключены. Свяжитесь с вашим провайдером VDS."
+    echo "TUN выключен. Свяжитесь с вашим провайдером VDS."
     exit 1
 fi
 # Очистка файла motd
