@@ -35,7 +35,7 @@ echo -en "export KEY_COUNTRY=\042RU\042\n" >> /usr/share/easy-rsa/vars
 echo -en "export KEY_PROVINCE=\042MSK\042\n" >> /usr/share/easy-rsa/vars
 echo -en "export KEY_CITY=\042Moscow\042\n" >> /usr/share/easy-rsa/vars
 echo -en "export KEY_ORG=\042${company}\042\n" >> /usr/share/easy-rsa/vars
-echo -en "export KEY_EMAIL=\042${email}042\n" >> /usr/share/easy-rsa/vars
+echo -en "export KEY_EMAIL=\042${email}\042\n" >> /usr/share/easy-rsa/vars
 echo -en "export KEY_CN=\042${company}\042\n" >> /usr/share/easy-rsa/vars
 echo -en "export KEY_OU=\042IT\042\n" >> /usr/share/easy-rsa/vars
 echo -en "#export KEY_NAME=\042servername\042\n" >> /usr/share/easy-rsa/vars
@@ -46,20 +46,18 @@ cd $EASYRSAPATH
 . ./vars
 ./easyrsa init-pki
 # Создаём корневой сертификат
-#(echo -en "\n\n") | ./easyrsa build-ca nopass # без пароля стрёмно чот
+(echo -en "\n\n") | ./easyrsa build-ca nopass # без пароля
 ./easyrsa build-ca
 # Создаём ключ Диффи-Хэлмана
 ./easyrsa gen-dh
 # Создаём запрос на сертификат для сервера и сам сертификат
 (echo -en "\n") | ./easyrsa gen-req $company nopass
-#(echo -en "yes"; sleep 1; echo -en "\n") | ./easyrsa sign-req server $company
-./easyrsa sign-req server $company
+(sleep 1; echo -en "yes\n"; sleep 1; echo -en "\n") | ./easyrsa sign-req server $company nopass
 # Создаём ta-ключ
 openvpn --genkey --secret pki/$company-ta.key
-
 # Создаём запрос на клиентский сертификат и сам сертификат
 (echo -en "\n") | ./easyrsa gen-req $company-user nopass
-./easyrsa sign-req client $company-user
+(sleep 1; echo -en "yes\n"; sleep 1; echo -en "\n") | ./easyrsa sign-req client $company-user nopass
 
 # Копируем ключи в общую папку
 cp pki/ca.crt pki/$company-ca.crt
@@ -77,7 +75,6 @@ mkdir /etc/openvpn/ccd
 touch /etc/openvpn/ccd/$company-user
 #указываем СВОИ подсети
 echo -en "ifconfig-push 10.1.$tun.4 10.1.$tun.1\niroute 10.1.1.0 255.255.255.0\niroute 192.168.102.0 255.255.255.0\n" >> /etc/openvpn/ccd/$company-user
-
 touch /etc/openvpn/server.conf
 echo -en "port 1194\nproto $protocol\ndev tun0\nca /etc/openvpn/server/$company-ca.crt\n" >> /etc/openvpn/server.conf
 echo -en "cert $company-server.crt\nkey $company-server.key\ndh dh2048.pem\n" >> /etc/openvpn/server.conf
@@ -120,18 +117,18 @@ echo -en "logpath   = /var/log/asterisk/messages\nbantime   = 259200\n" >> /etc/
 /etc/init.d/fail2ban restart
 
 # ****Генерация клиентских конфигов ******************************
-#touch /etc/openvpn/user/$company-openvpn.log #должен быть пустой
-#touch /etc/openvpn/user/$company-user.ovpn
-#echo -en "client\ndev tun$tun\nproto $protocol\nremote $vdsip 1194\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\n" >> /etc/openvpn/user/$company-user.ovpn
-#echo -en "ca /etc/openvpn/$company/$company-ca.crt\ncert /etc/openvpn/$company/$company-user.crt\nkey /etc/openvpn/$company/$company-user.key\ntls-auth /etc/openvpn/$company/$company-ta.key 1\ncipher DES-EDE3-CBC\n" >> /etc/openvpn/user/$company-user.ovpn
-#echo -en "ns-cert-type server\ncomp-lzo\nlog /etc/openvpn/$company/$company-openvpn.log\nverb 3\nscript-security 2\nup \042/etc/openvpn/$company/$company-up.sh\042\n" >> /etc/openvpn/user/$company-user.ovpn
-#touch /etc/openvpn/user/$company-up.sh
-#echo -en "#!/bin/bash\n/sbin/ip route add default via 10.1.$tun.1 dev tun$tun table $company\n" >> /etc/openvpn/user/$company-up.sh
-#echo -en "#/sbin/ip rule add from 10.1.1.x table $company #KB\n#/sbin/ip rule add from 192.168.x.x table $company #TXM\n" >> /etc/openvpn/user/$company-up.sh
-#echo -en "/sbin/ip route flush cache\n" >> /etc/openvpn/user/$company-up.sh
-#cd $CAUSERPATH
-#ln -s $company-user.ovpn $company-user.conf
-#tar -cvf $company.tar *
+touch /etc/openvpn/user/$company-openvpn.log #должен быть пустой
+touch /etc/openvpn/user/$company-user.ovpn
+echo -en "client\ndev tun$tun\nproto $protocol\nremote $vdsip 1194\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\n" >> /etc/openvpn/user/$company-user.ovpn
+echo -en "ca /etc/openvpn/$company/$company-ca.crt\ncert /etc/openvpn/$company/$company-user.crt\nkey /etc/openvpn/$company/$company-user.key\ntls-auth /etc/openvpn/$company/$company-ta.key 1\ncipher DES-EDE3-CBC\n" >> /etc/openvpn/user/$company-user.ovpn
+echo -en "ns-cert-type server\ncomp-lzo\nlog /etc/openvpn/$company/$company-openvpn.log\nverb 3\nscript-security 2\nup \042/etc/openvpn/$company/$company-up.sh\042\n" >> /etc/openvpn/user/$company-user.ovpn
+touch /etc/openvpn/user/$company-up.sh
+echo -en "#!/bin/bash\n/sbin/ip route add default via 10.1.$tun.1 dev tun$tun table $company\n" >> /etc/openvpn/user/$company-up.sh
+echo -en "#/sbin/ip rule add from 10.1.1.x table $company #KB\n#/sbin/ip rule add from 192.168.x.x table $company #TXM\n" >> /etc/openvpn/user/$company-up.sh
+echo -en "/sbin/ip route flush cache\n" >> /etc/openvpn/user/$company-up.sh
+cd $CAUSERPATH
+ln -s $company-user.ovpn $company-user.conf
+tar -cvf $company.tar *
 echo
 echo "Клиентские сертификаты и конфиги сгенерированы (8 файлов) и упакованы в архив /etc/openvpn/user/$company.tar. Его нужно скопировать на шлюз."
 # ****************************************************************
