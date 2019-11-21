@@ -5,11 +5,11 @@ printf "\033c"
 
 EASYRSAPATH=/usr/share/easy-rsa/
 KEYSPATH=/etc/openvpn/keys/
-CLIENTPATH=/etc/openvpn/user/
+USERPATH=/etc/openvpn/user/
 SERVERPATH=/etc/openvpn/server/
 
 # Уточняем необходииые данные
-echo "Выписываем сертификаты..."
+echo "Certificate issue..."
 echo
 echo "Enter the \"company\" "
 read company
@@ -22,9 +22,9 @@ read tun
 echo "Enter the \"ssh\" port"
 read ssh
 
-#получение имени сетевого интерфейса (eth0, ens32, eno1 и т.д.)
+# Получаем имя сетевого интерфейса (eth0, ens32, eno1 и т.д.)
 net=`ip r | grep default | grep -Po '(?<=dev )(\S+)'`
-#получение ip-адреса сетевого интерфейса $net
+# Получаем ip-адрес сетевого интерфейса $net
 vdsip=`ip addr show $net | awk '$1 == "inet" {gsub(/\/.*$/, "", $2); print $2}'`
 
 # Разносим полученные данные по конфигам
@@ -41,7 +41,7 @@ echo -en "export KEY_OU=\042IT\042\n" >> /usr/share/easy-rsa/vars
 echo -en "#export KEY_NAME=\042servername\042\n" >> /usr/share/easy-rsa/vars
 echo -en "#export KEY_ALTNAMES=\042altservername\042\n" >> /usr/share/easy-rsa/vars
 
-#Генерируем сертификаты
+### Генерируем сертификаты
 cd $EASYRSAPATH
 . ./vars
 ./easyrsa init-pki
@@ -64,16 +64,16 @@ cp pki/ca.crt pki/$company-ca.crt
 mkdir $KEYSPATH
 cp -r pki/* $KEYSPATH
 
-# Сортируем серверные и клиентские ключи
-mkdir $CLIENTPATH
+# Сортируем серверные и пользовательские ключи
+mkdir $USERPATH
 cd $KEYSPATH
 cp *ca.crt issued/$company.crt private/$company.key dh.pem *ta.key $SERVERPATH
-cp *ca.crt issued/*user.crt private/*user.key dh.pem *ta.key $CLIENTPATH
+cp *ca.crt issued/*user.crt private/*user.key dh.pem *ta.key $USERPATH
 
 # Создаём /ccd и server.conf
 mkdir /etc/openvpn/ccd
 touch /etc/openvpn/ccd/$company-user
-#указываем СВОИ подсети
+#!!! указываем СВОИ подсети !!!
 echo -en "ifconfig-push 10.1.$tun.4 10.1.$tun.1\niroute 10.1.1.0 255.255.255.0\niroute 192.168.102.0 255.255.255.0\n" >> /etc/openvpn/ccd/$company-user
 touch /etc/openvpn/server.conf
 echo -en "port 1194\nproto $protocol\ndev tun0\nca /etc/openvpn/server/$company-ca.crt\n" >> /etc/openvpn/server.conf
@@ -105,7 +105,7 @@ echo -en "status openvpn-status.log\nlog /var/log/openvpn.log\nverb 3\n" >> /etc
 #echo -en "-A POSTROUTING -o $net -j SNAT --to-source $vdsip\nCOMMIT\n*raw\n:PREROUTING ACCEPT [44288:4119009]\n:OUTPUT ACCEPT [222:25744]\nCOMMIT\n" >> /etc/iptables.rules
 # ****************************************************************
 
-#настройка fail2ban
+# Настраиваем fail2ban
 touch /etc/fail2ban/jail.local
 echo -en "[sshd]\nenabled   = true\nfilter    = sshd\nbanaction = iptables-multiport\n" >> /etc/fail2ban/jail.local
 echo -en "findtime  = 3600\nmaxretry  = 3\nbantime   = 259200\n\n" >> /etc/fail2ban/jail.local
@@ -117,16 +117,16 @@ echo -en "logpath   = /var/log/asterisk/messages\nbantime   = 259200\n" >> /etc/
 /etc/init.d/fail2ban restart
 
 # ****Генерация клиентских конфигов ******************************
-touch /etc/openvpn/user/$company-openvpn.log #должен быть пустой
-touch /etc/openvpn/user/$company-user.ovpn
+cd $USERPATH
+touch $company-openvpn.log #должен быть пустой
+touch $company-user.ovpn
 echo -en "client\ndev tun$tun\nproto $protocol\nremote $vdsip 1194\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\n" >> /etc/openvpn/user/$company-user.ovpn
 echo -en "ca /etc/openvpn/$company/$company-ca.crt\ncert /etc/openvpn/$company/$company-user.crt\nkey /etc/openvpn/$company/$company-user.key\ntls-auth /etc/openvpn/$company/$company-ta.key 1\ncipher DES-EDE3-CBC\n" >> /etc/openvpn/user/$company-user.ovpn
 echo -en "ns-cert-type server\ncomp-lzo\nlog /etc/openvpn/$company/$company-openvpn.log\nverb 3\nscript-security 2\nup \042/etc/openvpn/$company/$company-up.sh\042\n" >> /etc/openvpn/user/$company-user.ovpn
-touch /etc/openvpn/user/$company-up.sh
+touch $company-up.sh
 echo -en "#!/bin/bash\n/sbin/ip route add default via 10.1.$tun.1 dev tun$tun table $company\n" >> /etc/openvpn/user/$company-up.sh
 echo -en "#/sbin/ip rule add from 10.1.1.x table $company #KB\n#/sbin/ip rule add from 192.168.x.x table $company #TXM\n" >> /etc/openvpn/user/$company-up.sh
 echo -en "/sbin/ip route flush cache\n" >> /etc/openvpn/user/$company-up.sh
-cd $CAUSERPATH
 ln -s $company-user.ovpn $company-user.conf
 tar -cvf $company.tar *
 echo
