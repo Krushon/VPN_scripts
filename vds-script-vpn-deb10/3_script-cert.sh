@@ -76,11 +76,12 @@ touch /etc/openvpn/ccd/$company-user
 #!!! указываем СВОИ подсети !!!
 echo -en "ifconfig-push 10.1.$tun.4 10.1.$tun.1\niroute 10.1.1.0 255.255.255.0\niroute 192.168.102.0 255.255.255.0\n" >> /etc/openvpn/ccd/$company-user
 touch /etc/openvpn/server.conf
-echo -en "port 1194\nproto $protocol\ndev tun0\nca /etc/openvpn/server/$company-ca.crt\n" >> /etc/openvpn/server.conf
-echo -en "cert $company-server.crt\nkey $company-server.key\ndh dh2048.pem\n" >> /etc/openvpn/server.conf
+echo -en "port 1194\nproto $protocol\ndev tun0\n" >> /etc/openvpn/server.conf
+echo -en "ca /etc/openvpn/server/$company-ca.crt\ncert /etc/openvpn/server/$company.crt\n" >> /etc/openvpn/server.conf
+echo -en "key /etc/openvpn/server/$company.key\ndh /etc/openvpn/server/dh.pem\n" >> /etc/openvpn/server.conf
 echo -en "server 10.1.$tun.0 255.255.255.0\nclient-config-dir ccd\nroute 10.1.1.0 255.255.255.0\n" >> /etc/openvpn/server.conf
 echo -en "route 10.1.$tun.0 255.255.255.0\nroute 192.168.102.0 255.255.255.0 10.1.$tun.2\n" >> /etc/openvpn/server.conf
-echo -en "#push \042redirect-gateway def1\042\nkeepalive 10 120\ntls-auth $company-ta.key 0\n" >> /etc/openvpn/server.conf
+echo -en "#push \042redirect-gateway def1\042\nkeepalive 10 120\ntls-auth /etc/openvpn/server/$company-ta.key 0\n" >> /etc/openvpn/server.conf
 echo -en "cipher DES-EDE3-CBC\ncomp-lzo\npersist-key\npersist-tun\n" >> /etc/openvpn/server.conf
 echo -en "status openvpn-status.log\nlog /var/log/openvpn.log\nverb 3\n" >> /etc/openvpn/server.conf
 
