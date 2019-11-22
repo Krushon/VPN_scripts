@@ -43,7 +43,7 @@ script-delete - Удаление ПО и сертификатов.<br>
 ИЛИ
 
 скачиваем 0_script-prepare.sh напрямую из репозитория:<br>
-`# wget https://raw.githubusercontent.com/Krushon/vds-script-vpn-deb10/master/0_script-prepare.sh`
+`# wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-vpn-deb10/0_script-prepare.sh`
 
 2. Подключаемся к vds по ssh, устанавливаем права на запуск скрипта, запускаем скрипт.
 
