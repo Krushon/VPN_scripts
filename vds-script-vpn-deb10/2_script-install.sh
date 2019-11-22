@@ -3,7 +3,7 @@ SECONDS=0
 printf "\033c"
 echo "Install requirements packets..."
 apt-get update
-apt-get install openvpn asterisk mc ntp chrony fail2ban nftables -y
+apt-get install openvpn asterisk mc ntpdate chrony fail2ban nftables -y
 apt-get autoclean && apt-get clean
 systemctl enable chrony
 # Изменяем временную зону
