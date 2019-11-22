@@ -84,25 +84,63 @@ echo -en "#push \042redirect-gateway def1\042\nkeepalive 10 120\ntls-auth $compa
 echo -en "cipher DES-EDE3-CBC\ncomp-lzo\npersist-key\npersist-tun\n" >> /etc/openvpn/server.conf
 echo -en "status openvpn-status.log\nlog /var/log/openvpn.log\nverb 3\n" >> /etc/openvpn/server.conf
 
-
-# ****Генерация rc.local и iptables.rules ************************
-#rm /etc/rc.local
-#touch /etc/rc.local
-#chmod 755 /etc/rc.local
-#echo -en "#!/bin/sh -e\niptables-restore < /etc/iptables.rules\nexit 0\n" >> /etc/rc.local
-#touch /etc/iptables.rules
-#echo -en "*mangle\n:PREROUTING ACCEPT [44213:4111894]\n:INPUT ACCEPT [22109:2121408]\n:FORWARD ACCEPT [0:0]\n:OUTPUT ACCEPT [222:25744]\n:POSTROUTING ACCEPT [222:25744]\nCOMMIT\n" >> /etc/iptables.rules
-#echo -en "*filter\n:INPUT DROP [21121:2005015]\n:FORWARD ACCEPT [0:0]\n:OUTPUT ACCEPT [222:25744]\n" >> /etc/iptables.rules
-#echo -en "-A INPUT -i tun0 -j ACCEPT\n-A INPUT -i lo -j ACCEPT\n-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT\n-A INPUT -p tcp -m tcp --dport $ssh -j ACCEPT\n" >> /etc/iptables.rules
-#echo -en "-A INPUT -p $protocol -m $protocol --dport 1194 -j ACCEPT\n" >> /etc/iptables.rules
-#echo -en "-A INPUT -s 185.45.152.174/32 -p udp -m udp --dport 5060 -j ACCEPT\n-A INPUT -s 178.16.26.122/32 -p udp -m udp --dport 5060 -j ACCEPT\n-A INPUT -s 176.9.145.115/32 -p udp -m udp --dport 5060 -j ACCEPT\n" >> /etc/iptables.rules
-#echo -en "-A INPUT -s 5.9.108.25/32 -p udp -m udp --dport 5060 -j ACCEPT\n-A INPUT -s 89.249.23.194/32 -p udp -m udp --dport 5060 -j ACCEPT\n-A INPUT -s 195.122.19.17/32 -p udp -m udp --dport 5060 -j ACCEPT\n" >> /etc/iptables.rules
-#echo -en "-A INPUT -s 195.122.19.18/32 -p udp -m udp --dport 5060 -j ACCEPT\n-A INPUT -s 195.122.19.19/32 -p udp -m udp --dport 5060 -j ACCEPT\n-A INPUT -s 195.122.19.9/32 -p udp -m udp --dport 5060 -j ACCEPT\n" >> /etc/iptables.rules
-#echo -en "-A INPUT -s 195.122.19.10/32 -p udp -m udp --dport 5060 -j ACCEPT\n-A INPUT -s 195.122.19.11/32 -p udp -m udp --dport 5060 -j ACCEPT\n-A INPUT -s 91.228.238.172/32 -p udp -m udp --dport 5060 -j ACCEPT\n" >> /etc/iptables.rules
-#echo -en "-A INPUT -s 185.45.152.128/28 -p udp -m udp --dport 5060 -j ACCEPT\n-A INPUT -s 185.45.152.160/27 -p udp -m udp --dport 5060 -j ACCEPT\n" >> /etc/iptables.rules
-#echo -en "-A INPUT -p udp -m udp --dport 10000:20000 -j ACCEPT\n-A INPUT -p icmp -m icmp --icmp-type 0 -j ACCEPT\n-A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT\n" >> /etc/iptables.rules
-#echo -en "COMMIT\n##############\n*nat\n:PREROUTING ACCEPT [8279:852947]\n:OUTPUT ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\n" >> /etc/iptables.rules
-#echo -en "-A POSTROUTING -o $net -j SNAT --to-source $vdsip\nCOMMIT\n*raw\n:PREROUTING ACCEPT [44288:4119009]\n:OUTPUT ACCEPT [222:25744]\nCOMMIT\n" >> /etc/iptables.rules
+# **** Настраиваем файрвол ***************************************
+systemctl enable nftables
+touch ~/ruleset.nft
+echo -en "add table ip mangle\n" >> ~/ruleset.nft
+echo -en "add chain ip mangle PREROUTING { type filter hook prerouting priority -150; policy accept; }\n" >> ~/ruleset.nft
+echo -en "add chain ip mangle INPUT { type filter hook input priority -150; policy accept; }\n" >> ~/ruleset.nft
+echo -en "add chain ip mangle FORWARD { type filter hook forward priority -150; policy accept; }\n" >> ~/ruleset.nft
+echo -en "add chain ip mangle OUTPUT { type route hook output priority -150; policy accept; }\n" >> ~/ruleset.nft
+echo -en "add chain ip mangle POSTROUTING { type filter hook postrouting priority -150; policy accept; }\n" >> ~/ruleset.nft
+echo -en "add table ip filter\n" >> ~/ruleset.nft
+echo -en "add chain ip filter INPUT { type filter hook input priority 0; policy drop; }\n" >> ~/ruleset.nft
+echo -en "add chain ip filter FORWARD { type filter hook forward priority 0; policy accept; }\n" >> ~/ruleset.nft
+echo -en "add chain ip filter OUTPUT { type filter hook output priority 0; policy accept; }\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT iifname "tun0" counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT iifname "lo" counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT ct state related,established  counter accept\n" >> ~/ruleset.nft
+# открываем tcp-порт для подключения по ssh
+echo -en "add rule ip filter INPUT tcp dport $ssh counter accept\n" >> ~/ruleset.nft
+# открываем порт для подключения клиента openvpn
+echo -en "add rule ip filter INPUT $protocol dport 1194 counter accept\n" >> ~/ruleset.nft
+#--- добавляем ip-адреса sip-провайдеров ---#
+# zadarma 
+echo -en "add rule ip filter INPUT ip saddr 185.45.152.0/24 udp dport 5060 counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT ip saddr 185.45.155.0/24 udp dport 5060 counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT ip saddr 37.139.38.0/24 udp dport 5060 counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT ip saddr 195.122.19.0/27 udp dport 5060 counter accept\n" >> ~/ruleset.nft
+# gobaza
+echo -en "add rule ip filter INPUT ip saddr 213.145.46.78 udp dport 5060 counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT ip saddr 213.145.53.135 udp dport 5060 counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT ip saddr 213.145.53.135 udp dport 10000-65000 counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT ip saddr 213.145.53.128/27 udp dport 10000-65000 counter accept\n" >> ~/ruleset.nft
+# mtt, youmagic
+echo -en "add rule ip filter INPUT ip saddr 80.75.130.132 udp dport 5060 counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT ip saddr 80.75.130.136 udp dport 5060 counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT ip saddr 80.75.128.30 udp dport 5060 counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT ip saddr 80.75.132.66 udp dport 5060 counter accept\n" >> ~/ruleset.nft
+# siplink
+echo -en "add rule ip filter INPUT ip saddr 89.108.107.101 udp dport 5060 counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT udp dport 9000-9999 counter accept\n" >> ~/ruleset.nft
+# в диапазоне 10000:20000 генерируется случайный порт для sip-разговора
+echo -en "add rule ip filter INPUT udp dport 10000-20000 counter accept\n" >> ~/ruleset.nft
+#-------------------------------------------#
+# оставляем возможность пинговать машину и пинговать с машины
+echo -en "add rule ip filter INPUT icmp type echo-reply counter accept\n" >> ~/ruleset.nft
+echo -en "add rule ip filter INPUT icmp type echo-request counter accept\n" >> ~/ruleset.nft
+echo -en "add table ip nat\n" >> ~/ruleset.nft
+echo -en "add chain ip nat PREROUTING { type nat hook prerouting priority -100; policy accept; }\n" >> ~/ruleset.nft
+echo -en "add chain ip nat OUTPUT { type nat hook output priority -100; policy accept; }\n" >> ~/ruleset.nft
+echo -en "add chain ip nat POSTROUTING { type nat hook postrouting priority 100; policy accept; }\n" >> ~/ruleset.nft
+echo -en "add rule ip nat POSTROUTING oifname "$net" counter snat to $vdsip\n" >> ~/ruleset.nft
+echo -en "add table ip raw\n" >> ~/ruleset.nft
+echo -en "add chain ip raw PREROUTING { type filter hook prerouting priority -300; policy accept; }\n" >> ~/ruleset.nft
+echo -en "add chain ip raw OUTPUT { type filter hook output priority -300; policy accept; }\n" >> ~/ruleset.nft
+nft -f ~/ruleset.nft
+echo '#!/usr/sbin/nft -f' > /etc/nftables.conf
+echo 'flush ruleset' >> /etc/nftables.conf
+nft list ruleset >> /etc/nftables.conf
 # ****************************************************************
 
 # Настраиваем fail2ban
