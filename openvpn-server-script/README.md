@@ -46,24 +46,32 @@ chmod +x 0_script-prepare.sh
 Скачаются скрипты установки ПО и генерации сертификатов с github.<br>
 ---Если был раскомментирован блок подключения по ключу, то обновится файл `sshd_config` для подключения к серверу по ssh с ключом.<br>
 
-3. Запускаем скрипты по очереди.<br>
+3. Запускаем скрипты по очереди.
 ```bash
 ./1_script-upgrade.sh
 ./2_script-install.sh
 ```
 
 Если нужно настроить ntp на свой сервер синхронизации времени, то просто добавьте строку с адресом в файл `/etc/chrony/chrony.conf` в виде: server айпи iburst, а pool закомментируйте:<br>
-`cp /etc/chrony/chrony.conf /etc/chrony/chrony.conf.bak` (делаем бэкап конфига)<br>
-`sed -i '3s/.*pool.*/server АЙПИ iburst/' /etc/chrony/chrony.conf` (заменяем пул на свой сервер)<br>
-`systemctl restart chrony` (перезапускаем службу)<br>
-`chronyc sourcestats` (проверяем статус)<br>
+```bash
+cp /etc/chrony/chrony.conf /etc/chrony/chrony.conf.bak *(делаем бэкап конфига)*
+sed -i '3s/.*pool.*/server АЙПИ iburst/' /etc/chrony/chrony.conf (заменяем пул на свой сервер)
+systemctl restart chrony (перезапускаем службу)
+chronyc sourcestats` (проверяем статус)
+```
 
-<s>`cp /etc/ntp.conf /etc/ntp.conf.bak` (делаем бэкап конфига)<br>
-`sed -i '18s/#server ntp.your-provider.example/server АЙПИ iburst/' /etc/ntp.conf` (указываем свой сервер)<br>
-`sed -i 's/.*debian.pool/# \0/' /etc/ntp.conf` (комментируем все строки с пулами адресов)<br>
-`systemctl restart ntp` (перезапускаем службу)<br></s>
+<s>
+```bash
+cp /etc/ntp.conf /etc/ntp.conf.bak` (делаем бэкап конфига)
+sed -i '18s/#server ntp.your-provider.example/server АЙПИ iburst/' /etc/ntp.conf (указываем свой сервер)
+sed -i 's/.*debian.pool/# \0/' /etc/ntp.conf (комментируем все строки с пулами адресов)
+systemctl restart ntp (перезапускаем службу)
+```
+</s>
 
-`./3_script-cert.sh`<br>
+```bash
+./3_script-cert.sh
+```
 
 В скрипте `3_script-cert.sh` потребуется указать название, е-мейл и номер tun.
 
