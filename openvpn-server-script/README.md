@@ -26,26 +26,31 @@
 **Работа со скриптами:**
 1. На сервер загружаем скрипт `0_script-prepare.sh` (опционально: и ключ authorized_keys) через терминал.<br>
 ```bash
-$ scp 0_script-prepare.sh authorized_keys root@айпи:~
+scp 0_script-prepare.sh authorized_keys root@айпи:~
 ```
 
 ИЛИ
 
-скачиваем `0_script-prepare.sh` напрямую из репозитория:<br>
-`# wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/openvpn-server-script/0_script-prepare.sh`
+скачиваем `0_script-prepare.sh` напрямую из репозитория:
+```bash
+wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/openvpn-server-script/0_script-prepare.sh
+```
 
 2. Подключаемся к серверу по ssh, устанавливаем права на запуск скрипта, запускаем скрипт.
-
-`ssh root@айпи`<br>
-`chmod +x 0_script-prepare.sh`<br>
-`./0_script-prepare.sh`<br>
+```bash
+ssh root@айпи
+chmod +x 0_script-prepare.sh
+./0_script-prepare.sh
+```
 
 Скачаются скрипты установки ПО и генерации сертификатов с github.<br>
 ---Если был раскомментирован блок подключения по ключу, то обновится файл `sshd_config` для подключения к серверу по ssh с ключом.<br>
 
 3. Запускаем скрипты по очереди.<br>
-`./1_script-upgrade.sh`<br>
-`./2_script-install.sh`<br>
+```bash
+./1_script-upgrade.sh
+./2_script-install.sh
+```
 
 Если нужно настроить ntp на свой сервер синхронизации времени, то просто добавьте строку с адресом в файл `/etc/chrony/chrony.conf` в виде: server айпи iburst, а pool закомментируйте:<br>
 `cp /etc/chrony/chrony.conf /etc/chrony/chrony.conf.bak` (делаем бэкап конфига)<br>
