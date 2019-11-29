@@ -2,17 +2,24 @@
 # Подготавливаем машину для работы.
 SECONDS=0
 printf "\033c"
-#Проверка подключения модулей ядра tun/tap
+#Проверяем учётную запись
+IAM=$(whoami)
+if [ ${IAM} != "root" ]; then
+    echo -e "\e[31mВам надо зайти под рутом, чтобы использовать эти скрипты.\e[0m"
+    exit 1
+fi
+#Проверяем подключение модулей ядра tun/tap
 if [ -c /dev/net/tun ]; then
-    echo "TUN/TAP включены."
+    echo -e "\e[1;32mTUN/TAP включены.\e[0m"
 else
-    echo "TUN/TAP выключены. Надо включить."
+    echo -e "\e[31mTUN/TAP отключено. Обратитесь к вашему провайдеру VPS/VDS, чтобы включить.\e[0m"
     exit 1
 fi
 # Очистка файла motd
 mv /etc/motd /etc/motd.bak
 touch /etc/motd && chmod 664 /etc/motd
-#### Раскомментируйте этот блок, если хотите подключаться по ключу
+
+#### Раскомментируйте этот блок, если хотите подключаться к серверу по ключу
 #mkdir /root/.ssh
 #mv /root/authorized_keys /root/.ssh
 #chmod 700 /root/.ssh
@@ -29,11 +36,14 @@ touch /etc/motd && chmod 664 /etc/motd
 #echo -en "Subsystem sftp /usr/lib/openssh/sftp-server\nUsePAM yes\n" >> /etc/ssh/sshd_config
 #chmod 644 /etc/ssh/sshd_config
 ####
-wget https://raw.githubusercontent.com/Krushon/openvpn-server-script/master/1_script-upgrade.sh
-wget https://raw.githubusercontent.com/Krushon/openvpn-server-script/master/2_script-install.sh
-wget https://raw.githubusercontent.com/Krushon/openvpn-server-script/master/3_script-cert.sh
-wget https://raw.githubusercontent.com/Krushon/openvpn-server-script/master/add-vpn-user
-chmod +x 1_script-upgrade.sh 2_script-install.sh 3_script-cert.sh add-vpn-user
+
+#wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/openvpn-server-script/0_script-prepare.sh
+wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/openvpn-server-script/1_script-upgrade.sh
+wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/openvpn-server-script/2_script-install.sh
+wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/openvpn-server-script/3_script-cert.sh
+wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/openvpn-server-script/add-vpn-user
+wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/openvpn-server-script/del-vpn-user
+chmod +x 1_script-upgrade.sh 2_script-install.sh 3_script-cert.sh add-vpn-user del-vpn-user
 echo
 echo -e "***** Script \033[33;1m0\033[0m of \033[33;1m3\033[0m COMPLETED in $SECONDS seconds *****"
 echo
