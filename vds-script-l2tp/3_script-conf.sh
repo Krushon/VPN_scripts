@@ -2,8 +2,8 @@
 # Генерируем необходимые ключи и конфиги для VPN.
 SECONDS=0
 printf "\033c"
-echo "Enter the new \"PSK-KEY\" "
-read PSK-KEY
+echo "Enter the new \"PSKKEY\" "
+read PSKKEY
 # Получаем имя сетевого интерфейса (eth0, ens32, eno1 и т.д.)
 NET=`ip r | grep default | grep -Po '(?<=dev )(\S+)'`
 # Получаем ip-адрес сетевого интерфейса $net
@@ -26,16 +26,16 @@ touch /etc/ipsec.secrets
 echo -en "$VDSIP %any: PSK \042$PSK-KEY\042" >> /etc/ipsec.secrets
 
 ## Настройка l2tp
-mv /etc/xl2tpd/xl2trd.conf /etc/xl2tpd/xl2trd.conf.bak
-touch /etc/ixl2tpd/xl2trd.conf
-echo -en "[global]\n\tlisten-addr = $VDSIP\n\tport = 1701\n\tipsec saref = no\n" >> /etc/ixl2tpd/xl2trd.conf
-echo -en "\tdebug tunnel = yes\n\tdebug avp = yes\n\tdebug packet = yes\n" >> /etc/ixl2tpd/xl2trd.conf
-echo -en "\tdebug network = yes\n\tdebug state = yes\n\tauth file = /etc/ppp/chap-secrets\n" >> /etc/ixl2tpd/xl2trd.conf
-echo -en "\t;\n\t[lns default]\n\tip range = 172.16.254.1-172.16.254.253 ; Диапазон IP-адресов, которые выдаются подключающимся клиентам\n" >> /etc/ixl2tpd/xl2trd.conf
-echo -en "\tlocal ip = 172.16.254.254 ; Локальный IP-адрес сервера для VPN-клиентов\n" >> /etc/ixl2tpd/xl2trd.conf
-echo -en "\trefuse chap = yes\n\trefuse pap = yes\n\trequire authentication = yes\n" >> /etc/ixl2tpd/xl2trd.conf
-echo -en "\tppp debug = yes\n\tpppoptfile = /etc/ppp/options.xl2tpd\n\tlength bit = yes\n" >> /etc/ixl2tpd/xl2trd.conf
-echo -en "\tname = VPN\nassign ip = yes\n" >> /etc/ixl2tpd/xl2trd.conf
+mv /etc/xl2tpd/xl2tpd.conf /etc/xl2tpd/xl2tpd.conf.bak
+touch /etc/xl2tpd/xl2tpd.conf
+echo -en "[global]\n\tlisten-addr = $VDSIP\n\tport = 1701\n\tipsec saref = no\n" >> /etc/ixl2tpd/xl2tpd.conf
+echo -en "\tdebug tunnel = yes\n\tdebug avp = yes\n\tdebug packet = yes\n" >> /etc/ixl2tpd/xl2tpd.conf
+echo -en "\tdebug network = yes\n\tdebug state = yes\n\tauth file = /etc/ppp/chap-secrets\n" >> /etc/ixl2tpd/xl2tpd.conf
+echo -en "\t;\n\t[lns default]\n\tip range = 172.16.254.1-172.16.254.253 ; Диапазон IP-адресов, которые выдаются подключающимся клиентам\n" >> /etc/ixl2tpd/xl2tpd.conf
+echo -en "\tlocal ip = 172.16.254.254 ; Локальный IP-адрес сервера для VPN-клиентов\n" >> /etc/ixl2tpd/xl2tpd.conf
+echo -en "\trefuse chap = yes\n\trefuse pap = yes\n\trequire authentication = yes\n" >> /etc/ixl2tpd/xl2tpd.conf
+echo -en "\tppp debug = yes\n\tpppoptfile = /etc/ppp/options.xl2tpd\n\tlength bit = yes\n" >> /etc/ixl2tpd/xl2tpd.conf
+echo -en "\tname = VPN\nassign ip = yes\n" >> /etc/ixl2tpd/xl2tpd.conf
 
 ## Настройка ppp
 touch /etc/ppp/options.xl2tpd
@@ -53,13 +53,13 @@ iptables -t nat -A POSTROUTING -o venet0 -s 172.16.254.0/24 -j SNAT --to-source 
 iptables-save
 
 ## Настройка конфига sysctl
-# Отключаем ICMP send_ и accept_redirects
-sed -i '44s/.*net.*/net.ipv4.conf.all.accept_redirects = 0' /etc/sysctl.conf
-sed -i '52s/.*net.*/net.ipv4.conf.all.send_redirects = 0' /etc/sysctl.conf
-echo -en "\nnet.ipv4.conf.default.send_redirects = 0\nnet.ipv4.conf.default.accept_redirects = 0\n" >> /etc/sysctl.conf
-echo -en "net.ipv4.conf.$NET.send_redirects = 0\nnet.ipv4.conf.$NET.accept_redirects = 0\n" /etc/sysctl.conf
 # Разрешаем переcылать пакеты из одной сети в другую.
 sed -i '28s/.*net.*/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+# Отключаем ICMP send_ и accept_redirects
+sed -i '44s/.*net.*/net.ipv4.conf.all.accept_redirects = 0/' /etc/sysctl.conf
+sed -i '52s/.*net.*/net.ipv4.conf.all.send_redirects = 0/' /etc/sysctl.conf
+echo -en "\nnet.ipv4.conf.default.send_redirects = 0\nnet.ipv4.conf.default.accept_redirects = 0\n" >> /etc/sysctl.conf
+echo -en "net.ipv4.conf.$NET.send_redirects = 0\nnet.ipv4.conf.$NET.accept_redirects = 0\n" /etc/sysctl.conf
 
 ## Перезапуск служб
 /etc/init.d/ipsec restart
