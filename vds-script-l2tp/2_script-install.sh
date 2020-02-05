@@ -13,6 +13,7 @@ ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 wget https://download.openswan.org/openswan/openswan-latest.tar.gz
 tar -xvzf openswan-latest.tar.gz
 rm openswan-latest.tar.gz
+#cd openswan-2.6.51.5
 openswandir=`find . -type d -name 'openswan' | awk -F/ 'NR == 1{print$2}'`
 cd $openswandir
 make programs
