@@ -46,13 +46,13 @@ echo -en "AcceptEnv LC_IDENTIFICATION LC_ALL LANGUAGE\nAcceptEnv XMODIFIERS\n" >
 echo -en "Subsystem sftp /usr/lib/openssh/sftp-server\nCompression no\nMACs hmac-sha2-256\n" >> /etc/ssh/sshd_config
 chmod 644 /etc/ssh/sshd_config
 ###
-#wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp0_script-prepare.sh
+#wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/0_script-prepare.sh
 wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/1_script-upgrade.sh
 wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/2_script-install.sh
 wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/3_script-cert.sh
 #wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/4_add-client.sh
 #wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/5_del-client.sh
-chmod +x 1_script-upgrade.sh 2_script-install.sh 3_script-cert.sh script-delete.sh
+chmod +x 1_script-upgrade.sh 2_script-install.sh 3_script-conf.sh #4_add-client.sh 5_del-client.sh
 echo
 echo -e "***** Script \033[33;1m0\033[0m of \033[33;1m3\033[0m COMPLETED in $SECONDS seconds *****"
 echo
