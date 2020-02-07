@@ -52,7 +52,9 @@ iptables -t nat -A POSTROUTING -o venet0 -s 172.16.254.0/24 -j MASQUERADE
 iptables -A FORWARD -s 172.16.254.0/24 -j ACCEPT
 iptables -A FORWARD -d 172.16.254.0/24 -j ACCEPT
 iptables -t nat -A POSTROUTING -o venet0 -s 172.16.254.0/24 -j SNAT --to-source $VDSIP
-iptables-save
+iptables-save > /etc/iptables.rules
+touch /etc/rc.local && chmod 755 /etc/rc.local
+echo -en "#!/bin/sh -e\niptables-restore < /etc/iptables.rules\nexit 0\n" >> /etc/rc.local
 
 ## Настройка конфига sysctl
 # Разрешаем переcылать пакеты из одной сети в другую.
@@ -61,7 +63,7 @@ sed -i '28s/.*net.*/net.ipv4.ip_forward=1/' /etc/sysctl.conf
 sed -i '44s/.*net.*/net.ipv4.conf.all.accept_redirects = 0/' /etc/sysctl.conf
 sed -i '52s/.*net.*/net.ipv4.conf.all.send_redirects = 0/' /etc/sysctl.conf
 echo -en "net.ipv4.conf.default.send_redirects = 0\nnet.ipv4.conf.default.accept_redirects = 0\n" >> /etc/sysctl.conf
-echo -en "net.ipv4.conf.$NET.send_redirects = 0\nnet.ipv4.conf.$NET.accept_redirects = 0\n" /etc/sysctl.conf
+echo -en "net.ipv4.conf.$NET.send_redirects = 0\nnet.ipv4.conf.$NET.accept_redirects = 0\n" >> /etc/sysctl.conf
 
 ## Перезапуск служб
 /etc/init.d/ipsec restart
