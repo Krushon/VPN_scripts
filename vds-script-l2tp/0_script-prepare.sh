@@ -49,7 +49,7 @@ chmod 644 /etc/ssh/sshd_config
 #wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/0_script-prepare.sh
 wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/1_script-upgrade.sh
 wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/2_script-install.sh
-wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/3_script-cert.sh
+wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/3_script-conf.sh
 #wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/4_add-client.sh
 #wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-l2tp/5_del-client.sh
 chmod +x 1_script-upgrade.sh 2_script-install.sh 3_script-conf.sh #4_add-client.sh 5_del-client.sh
