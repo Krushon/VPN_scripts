@@ -17,11 +17,11 @@
 <br><br>
 Шлюз один. Виртуальных (или обычных) машин внутри сети может быть много. Для каждой машины нужен отдельный vds со своим внешним ip.
 <br><br>
-Все скрипты настроены на debian 10 и доступом по root через ssh с ключом.<br>
+Все скрипты настроены на debian 11 и доступом по root через ssh с ключом.<br>
 <br>
 **Содержимое скриптов:**<br>
 0 - Подготовка vds-машины: загрузка скриптов, обновление ssh-конфига. Подразумевается наличие сгенерированного ssh-ключа authorized_keys (см. <a href="https://github.com/Krushon/VPN_scripts/wiki/1.-%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-ssh">wiki</a>).<br>
-1 - Обновление ОС. Выполняется проверка версии дистрибутива. Если версия 8 или 9, то обновляется до 10. Если 10, то просто обновляется.<br>
+1 - Обновление ОС. Выполняется проверка версии дистрибутива. Если версия 8, 9 или 10, то обновляется до 11. Если 11, то просто обновляется.<br>
 2 - Установка ПО: openvpn, asterisk, mc, chrony, fail2ban, nftables.<br>
 3 - Генерация сертификатов, подготовка файлов.<br>
 script-delete - Удаление ПО и сертификатов.<br>
@@ -41,7 +41,7 @@ script-delete - Удаление ПО и сертификатов.<br>
 ИЛИ
 
 скачиваем 0_script-prepare.sh напрямую из репозитория:<br>
-`# wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-vpn-deb10/0_script-prepare.sh`
+`# wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-vpn-deb11/0_script-prepare.sh`
 
 2. Подключаемся к vds по ssh, устанавливаем права на запуск скрипта, запускаем скрипт.
 
@@ -60,11 +60,6 @@ script-delete - Удаление ПО и сертификатов.<br>
 `sed -i '3s/.*pool.*/server АЙПИ iburst/' /etc/chrony/chrony.conf` (заменяем пул на свой сервер)<br>
 `systemctl restart chrony` (перезапускаем службу)<br>
 `chronyc sourcestats` (проверяем статус)<br>
-
-<s>`cp /etc/ntp.conf /etc/ntp.conf.bak` (делаем бэкап конфига)<br>
-`sed -i '18s/#server ntp.your-provider.example/server АЙПИ iburst/' /etc/ntp.conf` (указываем свой сервер)<br>
-`sed -i 's/.*debian.pool/# \0/' /etc/ntp.conf` (комментируем все строки с пулами адресов)<br>
-`systemctl restart ntp` (перезапускаем службу)<br></s>
 
 `./3_script-cert.sh`<br>
 
