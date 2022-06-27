@@ -146,12 +146,12 @@ nft list ruleset >> /etc/nftables.conf
 
 # Настраиваем fail2ban
 touch /etc/fail2ban/jail.local
-echo -en "[sshd]\nenabled   = true\nfilter    = sshd\nbanaction = iptables-multiport\n" >> /etc/fail2ban/jail.local
+echo -en "[sshd]\nenabled   = true\nfilter    = sshd\nbanaction = nftables-multiport\n" >> /etc/fail2ban/jail.local
 echo -en "findtime  = 3600\nmaxretry  = 3\nbantime   = 259200\n\n" >> /etc/fail2ban/jail.local
 echo -en "[sshd-ddos]\nenabled   = true\nport      = ssh,sftp\n" >> /etc/fail2ban/jail.local
 echo -en "filter    = sshd-ddos\nmaxretry  = 2\n\n" >> /etc/fail2ban/jail.local
 echo -en "[asterisk]\nenabled   = true\nfilter    = asterisk\n" >> /etc/fail2ban/jail.local
-echo -en "action    = iptables-allports[name=asterisk, protocol=all]\n" >> /etc/fail2ban/jail.local
+echo -en "action    = nftables-allports[name=asterisk, protocol=all]\n" >> /etc/fail2ban/jail.local
 echo -en "logpath   = /var/log/asterisk/messages\nbantime   = 259200\n" >> /etc/fail2ban/jail.local
 /etc/init.d/fail2ban restart
 
