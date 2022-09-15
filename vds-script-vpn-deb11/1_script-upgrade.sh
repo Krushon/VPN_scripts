@@ -6,7 +6,7 @@ ver=`cat /etc/*-release | grep VERSION_ID | awk -F= '{print $2}'`
 # 8 - Support over. Поддержка версии 8 (jessie) закончилась 30.06.2020.
 # 9 - Support over. Поддержка версии 9 (stretch) закончилась 30.06.2022.
 # If 10 then update to 11. Если версия 10, то обновляем до 11.
-elif [ $ver = '"10"' ]
+if [ $ver = '"10"' ]
   then
     echo "OS version is 10. Upgrading to 11..."
     cp /etc/apt/sources.list /etc/apt/sources.list_backup
