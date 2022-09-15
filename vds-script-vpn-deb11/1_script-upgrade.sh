@@ -3,8 +3,8 @@
 SECONDS=0
 printf "\033c"
 ver=`cat /etc/*-release | grep VERSION_ID | awk -F= '{print $2}'`
-# 8 - Support over. Поддержка версии 8 (jessie) закончилась 30.06.2020.
-# 9 - Support over. Поддержка версии 9 (stretch) закончилась 30.06.2022.
+# 8 - Support is over. Поддержка версии 8 (jessie) закончилась 30.06.2020.
+# 9 - Support is over. Поддержка версии 9 (stretch) закончилась 30.06.2022.
 # If 10 then update to 11. Если версия 10, то обновляем до 11.
 if [ $ver = '"10"' ]
   then
@@ -22,7 +22,7 @@ elif [ $ver = '"11"' ]
     apt update
     apt upgrade -y
     apt autoremove -y
-# If version is not 8-11 then break. Если версия не 10, 11 и не debian, то скрипт завершается и потребуется ручное вмешательство.
+# If version is not 10,11 and debian then break. Если версия не 10, 11 и не debian, то скрипт завершается и потребуется ручное вмешательство.
   else
     echo -e "\e[31mSomething wnet wrong. Intervention is required.\e[0m"
     echo -e "\e[31mЧто-то пошло не так. Требуется вмешательство.\e[0m"
