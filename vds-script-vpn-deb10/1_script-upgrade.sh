@@ -27,8 +27,8 @@ elif [ $ver = '"9"' ]
 elif [ $ver = '"10"' ]
   then
     echo "Updating system..."
-    apt-get update
-    apt-get upgrade -y
+    apt update
+    apt upgrade -y
     apt autoremove -y
 # Если версия не 8, не 9, не 10 и не debian, то скрипт завершается и потребуется ручное вмешательство.
   else
