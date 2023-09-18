@@ -28,7 +28,7 @@ script-delete - Удаление ПО и сертификатов.<br>
 <br>
 **Предлагаемый софт для установки:**<br>
 `openvpn` - приложение для создания безопасного ip-туннеля через единый udp- или tcp-порт.<br>
-`asterisk` - телефонная станция и набор инструментальных средств для телефонии.<br>
+`asterisk` - достуна только тестовая версия sid - телефонная станция и набор инструментальных средств для телефонии.<br>
 `mc` - MidnightCommander - полноэкранный текстовый файловый менеджер.<br>
 `screenfetch` - это "Информационный инструмент для создания скриншотов Bash" - выводит информацию о дистрибутиве и системе.<br>
 `chrony` - клиент для установки системного времени и серверов NTP.<br>
@@ -42,7 +42,7 @@ script-delete - Удаление ПО и сертификатов.<br>
 ИЛИ
 
 скачиваем 0_script-prepare.sh напрямую из репозитория:<br>
-`# wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-vpn-deb11/0_script-prepare.sh`
+`# wget https://raw.githubusercontent.com/Krushon/VPN_scripts/master/vds-script-vpn-deb12/0_script-prepare.sh`
 
 2. Подключаемся к vds по ssh, устанавливаем права на запуск скрипта, запускаем скрипт.
 

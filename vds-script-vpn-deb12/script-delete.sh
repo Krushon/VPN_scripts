@@ -2,8 +2,8 @@
 SECONDS=0
 printf "\033c"
 echo "Removing packages..."
-apt-get purge openvpn asterisk ntp chrony fail2ban nftables -y
-apt-get autoclean && apt-get clean
+apt purge openvpn asterisk ntp chrony fail2ban nftables -y
+apt autoclean && apt clean
 rm -R /etc/openvpn
 rm ~/ruleset.nft
 apt autoremove -y

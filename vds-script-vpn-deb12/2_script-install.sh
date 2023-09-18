@@ -3,6 +3,7 @@ SECONDS=0
 printf "\033c"
 echo "Install requirements packets..."
 apt update
+# asterisk пока не доступен в стабильной сборке. только sid
 apt install openvpn asterisk mc screenfetch chrony fail2ban nftables -y
 apt autoclean && apt clean
 systemctl enable chrony
