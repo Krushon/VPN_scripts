@@ -3,8 +3,11 @@ SECONDS=0
 printf "\033c"
 echo "Install requirements packets..."
 apt update
+
 # asterisk пока не доступен в стабильной сборке. только sid
-apt install openvpn asterisk mc screenfetch chrony fail2ban nftables -y
+apt install asterisk -y
+
+apt install openvpn fail2ban chrony mc screenfetch -y
 apt autoclean && apt clean
 systemctl enable chrony
 # Changing the time zone. Изменяем временную зону
