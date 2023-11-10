@@ -5,7 +5,7 @@ echo "Install requirements packets..."
 apt update
 
 # asterisk пока не доступен в стабильной сборке. только sid
-apt install asterisk -y
+#apt install asterisk -y
 
 apt install openvpn fail2ban chrony mc screenfetch -y
 apt autoclean && apt clean
