@@ -4,7 +4,8 @@ SECONDS=0
 printf "\033c"
 ver=`cat /etc/*-release | grep VERSION_ID | awk -F= '{print $2}'`
 # 9  - Support is over. Поддержка версии 9 (stretch) закончилась 30.06.2022.
-# 10 - Support over 30.06.2024. Поддержка версии 10 (buster) закончится 30.06.2024.
+# 10 - Support will end on 30.06.2024. Поддержка версии 10 (buster) закончится 30.06.2024.
+# 11 - Support will end on 30.06.2026. Поддержка версии 11 (bullseye) закончится 30.06.2026.
 # If 11 then update to 12. Если версия 11, то обновляем до 12.
 if [ $ver = '"11"' ]
   then
@@ -27,7 +28,7 @@ elif [ $ver = '"12"' ]
     apt autoremove -y    
 # If version is not 11,12 and not debian then break. Если версия не 11, 12 и не debian, то скрипт завершается и потребуется ручное вмешательство.
   else
-    echo -e "\e[31mSomething went wrong. Intervention is required.\e[0m"
+    echo -e "\e[31mSomething went wrong. Meddling required.\e[0m"
     echo -e "\e[31mЧто-то пошло не так. Требуется вмешательство.\e[0m"
     exit 0
 fi
@@ -37,7 +38,7 @@ reb=`cat /var/log/apt/term.log | grep Please | awk '{print $1, $2}'`
 if [[ $reb == "Please reboot" ]]
   then
     echo -e "\e[1;31m### It would be nice to reboot if possible ###\e[0m"
-    echo -e "\e[1;31m### Хорошо бы ребутнуться по возможности ###\e[0m"
+    echo -e "\e[1;31m###  Хорошо бы ребутнуться по возможности  ###\e[0m"
 fi
 
 echo
